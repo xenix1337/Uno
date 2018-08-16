@@ -1,6 +1,10 @@
-var http = require('http');
+var express = require('express');
+var app = express();
+var http = require('http').Server(app);
 
-http.createServer(function (req, res) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Hello World!');
-}).listen(8080); 
+app.get('/', function(req, res) {
+    res.sendFile(__dirname + '/client/index.html');
+});
+app.use('/client', express.static(__dirname + '/client'));
+
+app.listen(8080);
