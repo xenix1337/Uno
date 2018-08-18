@@ -6,7 +6,7 @@ const height = 500;
 const FPS = 30;
 
 const color = ['gray','red','lime','blue','yellow','black'];
-const symbols = ['X', '><', '+2']
+const symbols = ['X', '><', '+2'];
 
 canvas.width = width;
 canvas.height = height;
@@ -16,6 +16,8 @@ canvas.addEventListener("click", function() {
     enemies[0].deck.cards.push(new Card(-1));
     enemies[1].deck.cards.push(new Card(-1));
     enemies[2].deck.cards.push(new Card(-1));
+
+    Player.deck.moveCard(Player.deck.cards[0]);
 });
 
 var objectPool = [];
@@ -29,11 +31,29 @@ class Card {
         this.height = 100;
         this.hovered = false;
         this.zIndex = 0;
+        this.own = false;
+
+        this.startPos = {};
+        this.destination = {};
+        this.time = 0;
+        this.maxTime = 0;
+        this.moving = false;
 
         objectPool.push(this);
     }
 
     draw() {
+        if(this.moving) {
+            this.time += 1000 / FPS;
+            this.x = this.startPos.x + (this.destination.x - this.startPos.x) * (this.time / this.maxTime);
+            this.y = this.startPos.y + (this.destination.y - this.startPos.y) * (this.time / this.maxTime);
+            if(this.time >= this.maxTime) {
+                this.x = this.destination.x;
+                this.y = this.destination.y;
+                this.moving = false;
+            }
+        }
+
         let hoverY = this.hovered ? -55 : 0;
 
         let colorID = Math.floor(this.id / 13);
@@ -50,6 +70,14 @@ class Card {
         if(colorID == 4) c.fillStyle = 'white';
         c.fillText(symbol, this.x + this.width / 2, hoverY + this.y + this.height / 2);
     };
+
+    move(destination, time) {
+        this.time = 0;
+        this.maxTime = time;
+        this.startPos = {x:this.x,y:this.y};
+        this.destination = destination;
+        this.moving = true;
+    }
 }
 
 class Deck {
@@ -58,17 +86,26 @@ class Deck {
         this.own = false;
         this.x = 0;
         this.y = 0;
+        this.margin = 30;
         this.orientation = 'h';
     }
 
-    addCard(id) {
+    addCard(id, own=false) {
         var newCard = new Card(id);
+        newCard.own = own;
         this.cards.push(newCard);
 
         //Sort all cards
         this.cards.sort(function(a,b) {
             return a.id > b.id;
         })
+    }
+
+    moveCard(card) {
+        var index = this.cards.indexOf(card);
+        this.cards.splice(index,1);
+        card.move({x:220,y:200}, 500);
+        topCard = card;
     }
 
     update() {
@@ -81,8 +118,7 @@ class Deck {
             if(_this.orientation == 'h') cardsWidth += value.width + 10;
             else cardsWidth += value.height + 10;
         });
-        if(this.own) {if(cardsWidth > width - 2 * 30) cardsWidth = width - 2 * 30;}
-        else {if(cardsWidth > width - 2 * 140) cardsWidth = width - 2 * 140;}
+        if(cardsWidth > width - 2 * this.margin) cardsWidth = width - 2 * this.margin;
         let currentX = width / 2 - cardsWidth / 2 + ((this.orientation == 'h') ? this.x : this.y);
         //Set them at their position and draw
         this.cards.forEach(function(value, index) {
@@ -115,7 +151,7 @@ class Enemy {
 
 //START GAME
 for(var i = 0; i < 25; i++) {
-    Player.deck.addCard(Math.floor(Math.random() * 50));
+    Player.deck.addCard(Math.floor(Math.random() * 50), true);
 }
 Player.deck.own = true;
 Player.deck.y = height - 120;
@@ -123,18 +159,19 @@ Player.deck.y = height - 120;
 var enemies = [];
 enemies.push(new Enemy());
 enemies[0].deck.y = 20;
+enemies[0].deck.margin = 140;
 
 enemies.push(new Enemy());
 enemies[1].deck.x = 20;
 enemies[1].deck.orientation = 'v';
+enemies[1].deck.margin = 140;
 
 enemies.push(new Enemy());
 enemies[2].deck.x = 420;
 enemies[2].deck.orientation = 'v';
+enemies[2].deck.margin = 140;
 
-var stack = new Deck();
-stack.x = 170;
-stack.addCard(5);
+var topCard = new Card(5);
 
 draw();
 setInterval(draw, 1000 / FPS); //TODO: I can change it to every event in game, because it hasn't got any physics or animations
@@ -148,11 +185,10 @@ function draw() {
     enemies.forEach(function(value) {
         value.update();
     })
-    stack.update();
 
     let canHover = true;
     objectPool.slice().reverse().forEach(function(value) {
-        if(aabb(mousePos.x, mousePos.y, value.x, value.y, value.width, value.height) && canHover && value.id != -1) {
+        if(aabb(mousePos.x, mousePos.y, value.x, value.y, value.width, value.height) && canHover && value.own) {
             value.hovered = true;
             canHover = false;
         } else value.hovered = false;
