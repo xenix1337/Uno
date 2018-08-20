@@ -1,5 +1,6 @@
 //Canvas Info
 var canvas = document.getElementById('game');
+canvas.onselectstart = function () { return false; }
 var c = canvas.getContext('2d');
 
 const width = 500;
@@ -24,6 +25,17 @@ const deckPositions = [{x:0, y:height - 120},{x:20, y:0},{x:0,y:20},{x:420,y:0}]
 //Events
 canvas.addEventListener("click", function() {
     canvas.style.cursor = 'auto';
+
+    //Send card
+    if(players[0].canMove) {
+        var cardToMove = players[0].deck.cards.find(function(value) {
+            return value.hovered == true;
+        });
+        if(cardToMove == undefined) return;
+        cardToMove.move({x:cardPile.x, y:cardPile.y},5000);
+        players[0].deck.cards.splice(players[0].deck.cards.indexOf(cardToMove), 1);
+        cardPile.putCard(cardToMove);
+    }
 });
 
 canvas.addEventListener('mousemove', function(evt) {
@@ -71,9 +83,11 @@ function draw() {
         } else value.hovered = false;
     })
     if(canHover) canvas.style.cursor = "auto";
+
     cards.sort(function(a,b) {
-        return a.zIndex > b.zIndex;
+        return a.zIndex - b.zIndex;
     })
+    
     cards.forEach(function(value) {
         value.draw();
     })

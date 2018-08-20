@@ -27,9 +27,10 @@ class Card {
                 this.moving = false;
             }
         }
-
-        let hoverY = this.hovered ? -55 : 0;
-
+        
+        let hoverY = 0;//this.hovered ? -55 : 0;
+        if(this.moving) hoverY = 0;
+        
         let colorID = Math.floor(this.id / 13);
         c.fillStyle = colors[colorID + 1];
 
@@ -44,6 +45,14 @@ class Card {
         if(colorID == 4) c.fillStyle = 'white';
         c.fillText(symbol, this.x + cardWidth / 2, hoverY + this.y + cardHeight / 2);
     };
+
+    onHover() {
+
+    }
+
+    onDehover() {
+
+    }
 
     move(destination, time) {
         this.time = 0;
@@ -72,7 +81,7 @@ class Deck {
 
     sortDeck() {
         this.cards.sort(function(a,b) {
-            return a.id > b.id;
+            return a.id - b.id;
         })
     }
 
@@ -104,6 +113,8 @@ class Deck {
 class CardPile {
     constructor() {
         this.cards = [];
+        this.x = 220;
+        this.y = 200;
     }
 
     topCard() {
@@ -112,13 +123,16 @@ class CardPile {
 
     putCard(card) {
         this.cards.push(card);
-        card.x = 220;
-        card.y = 200;
         while(this.cards.length > 3) this.cards.shift();
     }
 
     draw() {
+        let _this = this;
         this.cards.forEach(function(value) {
+            if(!value.moving) {
+                value.x = _this.x;
+                value.y = _this.y;
+            }
             value.draw();
         })
     }
@@ -155,7 +169,11 @@ class MoveIndicator {
     }
 
     nextPlayer() {
-        this.seat = (this.seat + 1) % 4;
+        let _this = this;
+        do { this.seat = (this.seat + 1) % 4; } 
+        while (players.find(function(value) { 
+            return (value.seat == _this.seat);
+        }) == undefined)
         this.setPlayer(this.seat);
     }
 
