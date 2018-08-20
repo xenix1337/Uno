@@ -2,6 +2,7 @@ class Card {
     constructor(id) {
         this.id = id;
         this.x = 0;
+
         this.y = 0;
         this.hovered = false;
         this.zIndex = 0;
@@ -26,33 +27,23 @@ class Card {
                 this.y = this.destination.y;
                 this.moving = false;
             }
+            this.zIndex = 1000;
         }
-        
-        let hoverY = 0;//this.hovered ? -55 : 0;
-        if(this.moving) hoverY = 0;
         
         let colorID = Math.floor(this.id / 13);
         c.fillStyle = colors[colorID + 1];
 
-        c.fillRect(this.x, this.y + hoverY, cardWidth, cardHeight);
+        c.fillRect(this.x, this.y, cardWidth, cardHeight);
         c.fillStyle = 'black';
-        c.strokeRect(this.x, this.y + hoverY, cardWidth, cardHeight);
+        c.strokeRect(this.x, this.y, cardWidth, cardHeight);
 
         if(this.id == -1) return;
         var symbol = (this.id % 13 < 10) ? this.id % 13 : symbols[(this.id % 13) - 10];
         c.font = '50px Arial';
         c.textAlign = 'center';
         if(colorID == 4) c.fillStyle = 'white';
-        c.fillText(symbol, this.x + cardWidth / 2, hoverY + this.y + cardHeight / 2);
+        c.fillText(symbol, this.x + cardWidth / 2, this.y + cardHeight / 2);
     };
-
-    onHover() {
-
-    }
-
-    onDehover() {
-
-    }
 
     move(destination, time) {
         this.time = 0;

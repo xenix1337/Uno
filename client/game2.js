@@ -32,9 +32,9 @@ canvas.addEventListener("click", function() {
             return value.hovered == true;
         });
         if(cardToMove == undefined) return;
-        cardToMove.move({x:cardPile.x, y:cardPile.y},5000);
+        cardToMove.move({x:cardPile.x, y:cardPile.y},500);
         players[0].deck.cards.splice(players[0].deck.cards.indexOf(cardToMove), 1);
-        cardPile.putCard(cardToMove);
+        cardpile.putCard(cardToMove);
     }
 });
 
