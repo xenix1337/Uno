@@ -17,9 +17,12 @@ class Lobby {
     }
 
     newPlayer(socket) {
-        this.players.push(socket);
-
         socket.emit('gameInfo', {playerID:socket.id});
+        players.forEach(function(value) {
+            socket.emit('newPlayer', {seat:0, playerID:value.playerID, cards:players.cards.length});
+        });
+
+        this.players.push(socket);
         console.log("Total player count: " + this.players.length);
     }
 

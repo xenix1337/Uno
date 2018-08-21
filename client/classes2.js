@@ -197,6 +197,7 @@ class Player {
         this.canMove = false;
         this.seat = seat;
         this.deck = new Deck();
+        this.id = 0;
 
         this.deck.x = deckPositions[seat].x;
         this.deck.y = deckPositions[seat].y;
