@@ -1,0 +1,25 @@
+{
+  "name": "uno",
+  "version": "1.0.0",
+  "description": "Simple game",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1",
+    "socketio": "^1.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xenix1337/Uno.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xenix1337/Uno/issues"
+  },
+  "homepage": "https://github.com/xenix1337/Uno#readme"
+}

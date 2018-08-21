@@ -182,7 +182,6 @@ class CardPile {
         var topCardID = this.topCard().id;
         if(id >= 52) return true; //For black cards always return true
         if(topCardID < 52) { //For all cards on pile, expect black
-            console.log("good");
             if(topCardID % 13 == id % 13) return true; //Return true for same number
             if(Math.floor(topCardID / 13) == Math.floor(id / 13)) return true; //Return true for same color
         } else {
