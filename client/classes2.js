@@ -112,6 +112,7 @@ class Deck {
         else newCard = new Card();
 
         this.cards.push(newCard);
+        this.sortDeck();
     }
 
     sortDeck() {
@@ -192,23 +193,27 @@ class CardPile {
 }
 
 class Player {
-    constructor(seat) {
-        this.own = (seat == 0);
+    constructor(seat, own = false) {
+        this.own = own;
         this.canMove = false;
         this.seat = seat;
         this.deck = new Deck();
         this.id = 0;
+        this.localSeat = 0;
 
-        this.deck.x = deckPositions[seat].x;
-        this.deck.y = deckPositions[seat].y;
-        this.deck.own = this.own;
-        if(seat%2==1) this.deck.orientation = 'v';
-        if(seat!=0) this.deck.margin = 140;
     }
 
     update() {
+        this.localSeat = (this.seat - playerSeat) % 4;
+        if(this.localSeat < 0) this.localSeat += 4;
+        this.deck.x = deckPositions[this.localSeat].x;
+        this.deck.y = deckPositions[this.localSeat].y;
+        this.deck.own = this.own;
+        if(this.localSeat%2==1) this.deck.orientation = 'v';
+        if(this.localSeat!=0) this.deck.margin = 140;
+
         this.deck.update();
-        if(this.seat == 0) this.deck.sortDeck();
+        if(this.own) this.deck.sortDeck();
     }
 }
 
@@ -219,7 +224,8 @@ class MoveIndicator {
     }
 
     setPlayer(seat) {
-        players[0].canMove = (seat == 0);
+        this.seat = seat;
+        players[0].canMove = (seat == playerSeat);
     }
 
     nextPlayer() {
@@ -235,7 +241,7 @@ class MoveIndicator {
         let distance = 90;
         c.save();
         c.translate(width / 2, height / 2);
-        c.rotate(0.5 * 3.1415 * this.seat);
+        c.rotate(0.5 * 3.1415 * (this.seat - playerSeat));
         c.beginPath();
         c.fillStyle='white';
         c.moveTo(0,distance);

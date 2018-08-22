@@ -1,3 +1,93 @@
 body {
-    background-color: #ffc14d;
+    background-color: #ffe7b9;
+}
+
+#gameDiv {
+    display: flex;
+    flex-direction: row;
+}
+
+#options {
+    background-color: #ecab33;
+    padding: 20px;
+    min-width: 200px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+#canvasHolder {
+    background-color: #ffaf1b;
+
+    padding: 20px;
+}
+
+#gameDiv button {
+    background-color: #4caf50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#gameDiv button:hover {
+    background-color: #187c1c;
+}
+
+#bottom {
+    margin-top: auto;
+}
+
+@media (max-width: 700px) {
+    #gameDiv {
+        flex-direction: column;
+    }
+
+    #options, #canvasHolder, #gameDiv {
+        border: none;
+        padding: none;
+        margin: none;
+        max-width: 500px;
+    }
+}
+
+#colorChoose {
+    padding: 10px;
+    background-color: gray;
+    border: 2px solid darkgray;
+    position: absolute;
+    top: 400px;
+    left: 205px;
+    z-index: 100;
+    font-weight: bold;
+    visibility: hidden;
+}
+
+#colorChoose button {
+    width: 30px;
+    height: 30px;
+}
+
+#colorChoose button {
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#colorChoose button:nth-of-type(1) {
+    background-color: red;
+}
+#colorChoose button:nth-of-type(2) {
+    background-color: lime;
+}
+#colorChoose button:nth-of-type(3) {
+    background-color: blue;
+}
+#colorChoose button:nth-of-type(4) {
+    background-color: yellow;
 }
