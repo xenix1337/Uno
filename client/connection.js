@@ -5,11 +5,11 @@ socket.on('init', function(data) {
     players[0].id = data.playerID;
     moveIndicator.setPlayer(data.currentMove);
 
-    document.getElementById('host').style.visibility = 'hidden';
+    document.getElementById('host').style.display = 'none';
 });
 
 socket.on('host', function(data) {
-    document.getElementById('host').style.visibility = 'visible';
+    document.getElementById('host').style.display = 'block';
 })
 
 socket.on('alert', function(data) {

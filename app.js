@@ -39,10 +39,12 @@ class Lobby {
 
     newSocket(socket) {
         //Send initial packet with info about game and push him to spectators
-        socket.emit('init', {playerID:socket.id, currentMove:2});
+        socket.emit('init', {playerID:socket.playerID, currentMove:2});
         this.spectators.push(socket);
         this.sendFullInfo(socket);
         socket.canPick = true;
+        socket.playerID = Math.floor(Math.random() * 1000000);
+        socket.saidUno = false;
 
         if(this.spectators.length + this.players.length == 1) this.initLobby(socket);
         this.reportServer();
@@ -119,12 +121,12 @@ class Lobby {
     sendFullInfo(socket) {
         var players = [];
         this.players.forEach(function(value) {
-            if(value != socket) players.push({playerID:value.id, cards:value.cards.length, seat:value.seat});
+            if(value != socket) players.push({playerID:value.playerID, cards:value.cards.length, seat:value.seat});
         })
 
         socket.emit('fullinfo', {
             players:players, 
-            you:{playerID:socket.id, cards:socket.cards, seat:socket.seat}, 
+            you:{playerID:socket.playerID, cards:socket.cards, seat:socket.seat}, 
             currentMove:this.currentMove, 
             pile:this.cardPile[this.cardPile.length - 1],
             running:this.running
@@ -145,6 +147,7 @@ class Lobby {
 
     sendCard(socket, data) {
         if(!this.verifyCard(data.id)) return;
+        if(socket.seat != this.currentMove) return;
         var _this = this;
 
         var index = socket.cards.indexOf(data.id);
@@ -152,9 +155,19 @@ class Lobby {
         if(index >= 0) {
             socket.cards.splice(index, 1);
             if (this.checkWin(socket)) return;
-            socket.broadcast.emit('cardOnPile', {id:data.id, playerID:socket.id});
+            socket.broadcast.emit('cardOnPile', {id:data.id, playerID:socket.playerID});
+
+            //Checking for saing UNO
+            if(!socket.saidUno && socket.cards.length == 1) {
+                for(var i = 0; i < 3; i++) {
+                    this.giveCard(this.players.find(function(value) {
+                        return (value.seat == _this.currentMove);
+                    }));
+                }
+            }
+            socket.saidUno = false; //reset saing UNO
+
             if(data.id < 52) {
-                console.log("Card thrown " + data.id);
                 if(data.id % 13 == 10) {
                     //Block player
                     this.nextPlayer();
@@ -191,6 +204,8 @@ class Lobby {
         if(!this.waitForColor) return;
         var _this = this;
 
+        if(data.color < 0 || data.color > 3) data.color = Math.floor(Math.random() * 3.99999);
+
         this.color = data.color;
         socket.broadcast.emit('setColor', {color:data.color});
         socket.emit('setColor', {color:data.color});
@@ -204,7 +219,6 @@ class Lobby {
             this.nextPlayer();
         }
         this.waitForColor = false;
-        console.log("Color: " + data.color);
     }
 
     takeCard(socket) {
@@ -223,7 +237,7 @@ class Lobby {
         var card = this.randomCard()
         socket.cards.push(card);
         socket.emit('takeCard', {id:card});
-        socket.broadcast.emit('enemyCard', {playerID:socket.id});
+        socket.broadcast.emit('enemyCard', {playerID:socket.playerID});
 
         return card;
     }
@@ -243,6 +257,19 @@ class Lobby {
         }
     }
 
+    uno(socket) {
+        let _this = this;
+        if(socket.seat != this.currentMove) return; //Saying UNO on not own turn
+        if(socket.cards.length != 2) return; //Saying UNO is possible only with 2 cards, and then throwing one
+        var canThrow = false;
+        socket.cards.forEach(function(value) {
+            if(_this.verifyCard(value)) canThrow = true;
+        })
+        if(!canThrow) return; //No good cards to throw and have 1 card
+
+        socket.saidUno = true;
+    }
+
     onPlayerDisconnect(socket) {
         //Remove from spectators or players
         var i = this.spectators.indexOf(socket);
@@ -251,7 +278,7 @@ class Lobby {
         if(i >= 0) this.players.splice(i, 1);
 
         //Inform other players
-        socket.broadcast.emit('leave', {playerID:socket.id});
+        socket.broadcast.emit('leave', {playerID:socket.playerID});
 
         //Pass host function
         if(socket == this.host) {
@@ -265,7 +292,7 @@ class Lobby {
             this.roundEnd();
         }
 
-        console.log('Lost connection! ' + socket.id);
+        console.log('Goodbye ' + socket.playerID);
         this.reportServer();
     }
 
@@ -304,8 +331,8 @@ var lobby = new Lobby();
 
 var io = require('socket.io')(http,{});
 io.on('connection', function(socket) {
-    console.log("New connection! " + socket.id);
     lobby.newSocket(socket);
+    console.log("Hello " + socket.playerID);
 
     socket.on('startRound', function() {
         if(lobby.host == socket) lobby.newRound();
@@ -325,6 +352,10 @@ io.on('connection', function(socket) {
 
     socket.on('pass', function() {
         if(lobby.currentMove == socket.seat && !socket.canPick) lobby.nextPlayer();
+    })
+
+    socket.on('uno', function() {
+        lobby.uno(socket);
     })
 
     socket.on('disconnect', function() {

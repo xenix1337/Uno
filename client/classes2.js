@@ -65,20 +65,30 @@ class PlayerCard extends Card {
 
     draw() {
         let colorID = Math.floor(this.id / 13);
-        c.fillStyle = colors[colorID + 1];
 
-        c.fillRect(this.x, this.y, cardWidth, cardHeight);
-        c.strokeStyle = 'black';
-        c.lineWidth = 2;
-        c.strokeRect(this.x, this.y, cardWidth, cardHeight);
+        c.drawImage(cardsSheet, colorID * cardWidth, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
 
-        if(this.id == -1) return;
-        var symbol = (this.id % 13 < 10) ? this.id % 13 : symbols[(this.id % 13) - 10];
-        c.font = '50px Arial';
-        c.textAlign = 'center';
-        if(colorID == 4) c.fillStyle = 'white';
-        else c.fillStyle = 'black';
-        c.fillText(symbol, this.x + cardWidth / 2, this.y + cardHeight / 2);
+        if((this.id % 13 <= 9 && this.id != 52) || this.id % 13 == 12 || this.id == 53) { //Cards with text symbols
+            var symbol = this.id % 13;
+            if(this.id % 13 == 12) symbol = '+2';
+            if(this.id == 53) symbol = '+4';
+
+            c.font = '50px Arial';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle'; 
+            c.fillStyle = 'black';
+            c.fillText(symbol, this.x + cardWidth / 2, this.y + cardHeight / 2);
+        } else { //Cards with symbols
+            var dx = 0;
+            if(this.id == 52) {
+                dx = cardWidth * 2;
+            } else {
+                dx = ((this.id%13) - 10) * cardWidth;
+            }
+
+            c.drawImage(specialSheet, dx, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
+        }
+        
     }
 
     onHover() {

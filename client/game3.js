@@ -3,8 +3,8 @@ var canvas = document.getElementById('game');
 canvas.onselectstart = function () { return false; }
 var c = canvas.getContext('2d');
 
-const width = 750;
-const height = 750;
+var width = 750;
+var height = 750;
 canvas.width = width;
 canvas.height = height;
 
@@ -15,6 +15,10 @@ const colors = ['gray','red','lime','blue','yellow','black'];
 const symbols = ['X', '><', '+2'];
 const cardWidth =  90;
 const cardHeight = 150;
+var cardsSheet = new Image();
+cardsSheet.src = "client/img/cards.png";
+var specialSheet = new Image();
+specialSheet.src = "client/img/specials.png";
 
 var cards = [];
 
@@ -55,6 +59,9 @@ setInterval(draw, 1000 / FPS);
 
 //DRAW FUNCTION
 function draw() {
+    var width = canvas.width;
+    var height = canvas.height;
+
     //Draw background
     c.fillStyle = 'darkgreen';
     c.fillRect(0,0,width,height);

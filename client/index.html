@@ -10,9 +10,9 @@
 </head>
 <body>
     <div id="gameDiv">
-        <div id="canvasHolder"><canvas id="game" width="400px" height="400px"></canvas></div>
+        <div id="canvasHolder"><canvas id="game"></canvas></div>
         <div id="options">
-            <div id="host" style='visibility: hidden'>
+            <div id="host" style='display: none'>
                 <span>You are host!</span><br>
                 <button id="start" onclick="hostStart()">Start game</button>
             </div>
@@ -22,14 +22,13 @@
                 <button id="uno" onclick="uno()">Uno!</button>
             </div>
         </div>
+        
     </div>
-    <div id="colorChoose">Select color<br>
-        <button onclick="selectColor(0)"></button>
-        <button onclick="selectColor(1)"></button>
-        <button onclick="selectColor(2)"></button>
-        <button onclick="selectColor(3)"></button>
+    <div id="colorChooseHolder">
+        <div id="colorChoose">Select color<br>
+            <button onclick="selectColor(0)"></button><button onclick="selectColor(1)"></button><button onclick="selectColor(2)"></button><button onclick="selectColor(3)"></button>
+        </div>
     </div>
-
     <script src="/client/classes2.js"></script>
     <script src="/client/game3.js"></script>
     <script src="/client/connection.js"></script>

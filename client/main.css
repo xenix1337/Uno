@@ -1,10 +1,13 @@
 body {
     background-color: #ffe7b9;
+    margin: 0;
+    padding: 0;
 }
 
 #gameDiv {
     display: flex;
     flex-direction: row;
+    position: relative;
 }
 
 #options {
@@ -56,13 +59,24 @@ body {
     }
 }
 
+#colorChooseHolder {
+    position: absolute;
+    width: 750px;
+    height: 750px;
+    left: 20px;
+    top: 20px;
+    z-index: 100;
+    visibility: hidden;
+}
+
 #colorChoose {
-    padding: 10px;
+    position: relative;
+    width: 120px;
+    top: 65%;
+    padding: 15px;
     background-color: gray;
     border: 2px solid darkgray;
-    position: absolute;
-    top: 400px;
-    left: 205px;
+    margin: auto auto;
     z-index: 100;
     font-weight: bold;
     visibility: hidden;
@@ -71,9 +85,8 @@ body {
 #colorChoose button {
     width: 30px;
     height: 30px;
-}
-
-#colorChoose button {
+    margin: 0;
+    padding: 0;
     border: none;
     text-decoration: none;
     cursor: pointer;
