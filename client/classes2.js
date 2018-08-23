@@ -30,12 +30,7 @@ class Card {
     }
 
     draw() {
-        c.fillStyle = colors[0];
-
-        c.fillRect(this.x, this.y, cardWidth, cardHeight);
-        c.strokeStyle = 'black';
-        c.lineWidth = 2;
-        c.strokeRect(this.x, this.y, cardWidth, cardHeight);
+        c.drawImage(cardsSheet, 5*cardWidth, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
     }
 
     move(destination, time) {
@@ -73,7 +68,7 @@ class PlayerCard extends Card {
             if(this.id % 13 == 12) symbol = '+2';
             if(this.id == 53) symbol = '+4';
 
-            c.font = '50px Arial';
+            c.font = '48px Comic Sans MS';
             c.textAlign = 'center';
             c.textBaseline = 'middle'; 
             c.fillStyle = 'black';

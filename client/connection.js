@@ -21,7 +21,6 @@ function hostStart() {
 }
 
 socket.on('fullinfo', function(data) {
-    console.log(data);
     if(data.you.seat > -1) isPlaying = true;
     else isPlaying = false;
 
@@ -81,7 +80,7 @@ socket.on('cardOnPile', function(data) {
     cards.splice(cards.indexOf(player.deck.cards[0]), 1);
     player.deck.cards.shift();
 
-    drawColorCircle = false;
+    drawColorCat = false;
 });
 
 socket.on('setPlayer', function(data) {
@@ -113,7 +112,7 @@ function uno() {
 
 socket.on('setColor', function(data) {
     cardPile.color = data.color;
-    drawColorCircle = true;
+    drawColorCat = true;
 })
 
 function selectColor(id) {

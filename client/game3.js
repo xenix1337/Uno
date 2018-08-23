@@ -12,13 +12,14 @@ const FPS = 30;
 
 //Cards info
 const colors = ['gray','red','lime','blue','yellow','black'];
-const symbols = ['X', '><', '+2'];
 const cardWidth =  90;
 const cardHeight = 150;
 var cardsSheet = new Image();
-cardsSheet.src = "client/img/cards.png";
+cardsSheet.src = "client/img/cards2.png";
 var specialSheet = new Image();
 specialSheet.src = "client/img/specials.png";
+var colorCatsSheet = new Image();
+colorCatsSheet.src = "client/img/colorCats.png";
 
 var cards = [];
 
@@ -33,7 +34,7 @@ const deckPositions = [
 var playerSeat = 0;
 var isPlaying = false;
 var running = false;
-var drawColorCircle = false;
+var drawColorCat = false;
 
 //Events
 canvas.addEventListener("click", function() {
@@ -116,11 +117,8 @@ function draw() {
         value.draw();
     })
 
-    if(drawColorCircle) {
-        c.beginPath();
-        c.arc(width/2,height/2-cardHeight/2-30,10,0,2*Math.PI);
-        c.fillStyle = colors[cardPile.color + 1];
-        c.fill();
+    if(drawColorCat) {
+        c.drawImage(colorCatsSheet, cardWidth * cardPile.color, 0, cardWidth, cardHeight, width / 2 - cardWidth / 2, height / 2 - cardHeight / 2 - 72, cardWidth, cardHeight);
     }
 
     mousePos.oneclick = false;
