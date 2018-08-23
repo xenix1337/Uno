@@ -42,6 +42,7 @@ socket.on('fullinfo', function(data) {
             players[0].deck.addCard(value);
         })
         playerSeat = data.you.seat;
+        players[0].id = data.you.playerID;
     }
 
     moveIndicator.setPlayer(data.currentMove);
@@ -124,4 +125,32 @@ function selectColor(id) {
 
 function pass() {
     socket.emit('pass');
+}
+
+var input = document.getElementById('chatInput');
+
+input.addEventListener('keydown', function() {
+    if(event.keyCode == 13) sendChat();
+})
+
+socket.on('chatReceive', function(data) {
+    var history = document.getElementById('chatHistory');
+
+    history.innerHTML += data.text;
+    history.innerHTML += '<br>';
+    history.scrollTop = history.scrollHeight;
+})
+
+function sendChat() {
+    if(input.value.length <= 1) return;
+    var history = document.getElementById('chatHistory');
+
+    socket.emit('chatSend', {text:input.value});
+
+    history.innerHTML += '[You] ';
+    history.innerHTML += input.value;
+    history.innerHTML += '<br>';
+    history.scrollTop = history.scrollHeight;
+
+    input.value = '';
 }

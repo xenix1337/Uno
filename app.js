@@ -252,6 +252,8 @@ class Lobby {
 
     checkWin(socket) {
         if(socket.cards.length == 0) {
+            socket.broadcast.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
+            socket.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
             this.roundEnd();
             this.newRound();
             return true;
@@ -357,6 +359,12 @@ io.on('connection', function(socket) {
 
     socket.on('uno', function() {
         lobby.uno(socket);
+    })
+
+    socket.on('chatSend', function(data) {
+        if(data.text.length <= 1) return;
+        data.text = '[' + socket.playerID + '] ' + data.text;
+        socket.broadcast.emit('chatReceive', data);
     })
 
     socket.on('disconnect', function() {
