@@ -24,6 +24,8 @@ socket.on('fullinfo', function(data) {
     if(data.you.seat > -1) isPlaying = true;
     else isPlaying = false;
 
+    drawColorCat = false;
+
     cards = [];
     cardPile.cards = [];
 

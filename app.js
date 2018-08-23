@@ -86,6 +86,7 @@ class Lobby {
             for(var rs = 0; rs < 5; rs++) {
                 value.cards.push(_this.randomCard());
             }
+            value.canPick = true;
         });
 
         //Send random card on pile

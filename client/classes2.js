@@ -241,7 +241,7 @@ class MoveIndicator {
     }
 
     draw() {
-        let distance = 0.18 * width;
+        let distance = 0.25 * width;
         c.save();
         c.translate(width / 2, height / 2);
         c.rotate(0.5 * 3.1415 * (this.seat - playerSeat));
