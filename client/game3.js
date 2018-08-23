@@ -13,14 +13,19 @@ const FPS = 30;
 //Cards info
 const colors = ['gray','red','lime','blue','yellow','black'];
 const symbols = ['X', '><', '+2'];
-const cardWidth = 60;
-const cardHeight = 100;
+const cardWidth =  90;
+const cardHeight = 150;
 
 var cards = [];
 
 //Other
 var mousePos = {x:0,y:0,oneclick:false};
-const deckPositions = [{x:0, y:height - 120},{x:20, y:0},{x:0,y:20},{x:420,y:0}];
+const deckPositions = [
+    {x:0, y:height - cardHeight - 20},
+    {x:20, y:0},
+    {x:0,y:20},
+    {x:width - cardWidth - 20,y:0}
+];
 var playerSeat = 0;
 var isPlaying = false;
 var running = false;
@@ -87,10 +92,10 @@ function draw() {
                         sendCard(value);
                         if(value.id >= 52) document.getElementById('colorChoose').style.visibility = 'visible';
                         value.move({x:cardPile.x,y:cardPile.y},500);
-                        
                         players[0].deck.cards.splice(array.length - index - 1, 1);
-
                         cardPile.putCard(value);
+
+                        players[0].canMove = false;
                     }
                 } else {
                     if(value.hovered == true) value.onDehover();
@@ -106,7 +111,7 @@ function draw() {
 
     if(drawColorCircle) {
         c.beginPath();
-        c.arc(250,150,10,0,2*Math.PI);
+        c.arc(width/2,height/2-cardHeight/2-30,10,0,2*Math.PI);
         c.fillStyle = colors[cardPile.color + 1];
         c.fill();
     }

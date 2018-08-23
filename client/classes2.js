@@ -88,8 +88,6 @@ class PlayerCard extends Card {
     }
 
     onDehover() {
-        //this.moving = false;
-        //this.y = this.startPos.y;
         this.move({x:this.x, y:this.startPos.y},200);
 
         this.hovered = false;
@@ -102,7 +100,7 @@ class Deck {
         this.x = 0;
         this.y = 0;
         this.own = false;
-        this.margin = 30;
+        this.margin = 0.06 * width;
         this.orientation = 'h';
     }
 
@@ -150,8 +148,8 @@ class Deck {
 class CardPile {
     constructor() {
         this.cards = [];
-        this.x = 220;
-        this.y = 200;
+        this.x = width / 2 - cardWidth / 2;
+        this.y = height / 2 - cardHeight / 2;
         this.color; //for card 52 and 53
     }
 
@@ -210,7 +208,7 @@ class Player {
         this.deck.y = deckPositions[this.localSeat].y;
         this.deck.own = this.own;
         if(this.localSeat%2==1) this.deck.orientation = 'v';
-        if(this.localSeat!=0) this.deck.margin = 140;
+        if(this.localSeat!=0) this.deck.margin = 0.28 * width;
 
         this.deck.update();
         if(this.own) this.deck.sortDeck();
@@ -238,7 +236,7 @@ class MoveIndicator {
     }
 
     draw() {
-        let distance = 90;
+        let distance = 0.18 * width;
         c.save();
         c.translate(width / 2, height / 2);
         c.rotate(0.5 * 3.1415 * (this.seat - playerSeat));
