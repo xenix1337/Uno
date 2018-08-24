@@ -229,6 +229,14 @@ class MoveIndicator {
     setPlayer(seat) {
         this.seat = seat;
         players[0].canMove = (seat == playerSeat);
+        if(seat == playerSeat) {
+            buttonsManager.showButton('take');
+            buttonsManager.checkUno();
+        } else {
+            buttonsManager.hideButton('take');
+            buttonsManager.hideButton('pass');
+            buttonsManager.hideButton('uno');
+        }
     }
 
     nextPlayer() {
@@ -252,5 +260,31 @@ class MoveIndicator {
         c.lineTo(10, distance - 10);
         c.fill();
         c.restore();
+    }
+}
+
+class ButtonsManager {
+    constructor() {
+        
+    }
+
+    showButton(name) {
+        var button = document.getElementById(name);
+        button.style.display = 'block';
+    }
+
+    hideButton(name) {
+        var button = document.getElementById(name);
+        button.style.display = 'none';
+    }
+
+    checkUno() {
+        if(players[0].deck.cards.length == 2) {
+            var canThrow = false;
+            players[0].deck.cards.forEach(function(value) {
+                if(cardPile.verifyCard(value.id)) canThrow = true;
+            })
+            if(canThrow) this.showButton('uno');
+        }
     }
 }

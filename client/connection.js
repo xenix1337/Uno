@@ -95,11 +95,14 @@ function sendCard(card) {
 }
 
 function takeCard() {
+    buttonsManager.hideButton('take');
+    buttonsManager.showButton('pass');
     socket.emit('takeCard');
 }
 
 socket.on('takeCard', function(data) {
     players[0].deck.addCard(data.id);
+    buttonsManager.checkUno();
 })
 
 socket.on('enemyCard', function(data) {
@@ -111,6 +114,7 @@ socket.on('enemyCard', function(data) {
 
 function uno() {
     socket.emit('uno');
+    buttonsManager.hideButton('uno');
 }
 
 socket.on('setColor', function(data) {

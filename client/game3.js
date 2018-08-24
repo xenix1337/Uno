@@ -50,8 +50,10 @@ var players = [];
 
 players.push(new Player(0, true));
 
+var buttonsManager = new ButtonsManager();
 var moveIndicator = new MoveIndicator(0);
 var cardPile = new CardPile();
+
 
 
 //START GAME
