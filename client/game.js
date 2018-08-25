@@ -20,6 +20,8 @@ var specialSheet = new Image();
 specialSheet.src = "client/img/specials.png";
 var colorCatsSheet = new Image();
 colorCatsSheet.src = "client/img/colorCats.png";
+var messageSheet = new Image();
+messageSheet.src = "client/img/messages.png";
 
 var cards = [];
 
@@ -53,6 +55,7 @@ players.push(new Player(0, true));
 var buttonsManager = new ButtonsManager();
 var moveIndicator = new MoveIndicator(0);
 var cardPile = new CardPile();
+var specialMessage = new SpecialMessage(1,1);
 
 
 
@@ -122,6 +125,7 @@ function draw() {
     if(drawColorCat) {
         c.drawImage(colorCatsSheet, cardWidth * cardPile.color, 0, cardWidth, cardHeight, width / 2 - cardWidth / 2, height / 2 - cardHeight / 2 - 72, cardWidth, cardHeight);
     }
+    specialMessage.draw();
 
     mousePos.oneclick = false;
 }

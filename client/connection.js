@@ -170,7 +170,19 @@ function sendChat() {
 }
 
 socket.on('win', function(data) {
-    //data.playerID;
+    specialMessage.type = 1;
+    specialMessage.seat = data.seat;
+    specialMessage.visible = true;
+
     buttonsManager.hideButton('take');
     buttonsManager.hideButton('pass');
+    setTimeout(function() {specialMessage.visible=false}, 3000);
+})
+
+socket.on('uno', function(data) {
+    specialMessage.type = 0;
+    specialMessage.seat = data.seat;
+    specialMessage.visible = true;
+
+    setTimeout(function() {specialMessage.visible=false}, 3000);
 })

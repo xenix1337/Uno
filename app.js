@@ -263,7 +263,7 @@ class Lobby {
             io.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
             this.roundEnd();
             setTimeout(this.newRound.bind(this), 3000);
-            io.emit('win', {playerID:socket.playerID});
+            io.emit('win', {playerID:socket.playerID, seat:socket.seat});
             return true;
         }
     }
@@ -279,6 +279,7 @@ class Lobby {
         if(!canThrow) return; //No good cards to throw and have 1 card
 
         socket.saidUno = true;
+        io.emit('uno', {seat:socket.seat});
     }
 
     onPlayerDisconnect(socket) {

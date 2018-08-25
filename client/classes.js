@@ -263,6 +263,27 @@ class MoveIndicator {
     }
 }
 
+class SpecialMessage {
+    constructor() {
+        this.seat = 0;
+        this.type = 0;
+        this.seatVectors = [{x:0,y:1},{x:-1,y:0},{x:0,y:-1},{x:1,y:0}];
+
+        this.visible = false;
+    }
+
+    draw() {
+        if(!this.visible) return;
+        
+        let distance = 0.20 * width;
+        let local = this.seat - playerSeat;
+        if(local < 0) local += 4;
+        let size = {x:100, y:100};
+        
+        c.drawImage(messageSheet, this.type * size.x, 0, size.x, size.y, width / 2 + this.seatVectors[local].x * distance - size.x / 2  + ((local % 2 == 0) ? 80 : 0), height / 2 + this.seatVectors[local].y * distance - size.y / 2 - ((local % 2 == 1) ? 60 : 0), size.x, size.y);
+    }
+}
+
 class ButtonsManager {
     constructor() {
         
