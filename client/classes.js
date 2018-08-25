@@ -230,7 +230,7 @@ class MoveIndicator {
         this.seat = seat;
         players[0].canMove = (seat == playerSeat);
         if(seat == playerSeat) {
-            buttonsManager.showButton('take');
+            if(running) buttonsManager.showButton('take');
             buttonsManager.checkUno();
         } else {
             buttonsManager.hideButton('take');

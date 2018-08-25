@@ -49,6 +49,7 @@ socket.on('fullinfo', function(data) {
     if(data.pile >= 0) cardPile.putCard(new PlayerCard(data.pile));
 
     running = data.running;
+    if(!running) buttonsManager.hideButton('take');
 })
 
 function newPlayer(data) {
