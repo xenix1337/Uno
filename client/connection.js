@@ -5,6 +5,14 @@ socket.on('init', function(data) {
     players[0].id = data.playerID;
     moveIndicator.setPlayer(data.currentMove);
 
+    var history = document.getElementById('chatHistory');
+    data.chatHistory.forEach(function(value) {
+        history.innerHTML += value;
+        history.innerHTML += '<br>'
+    })
+    
+    history.scrollTop = history.scrollHeight;
+
     document.getElementById('host').style.display = 'none';
 });
 

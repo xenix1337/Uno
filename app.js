@@ -24,6 +24,8 @@ class Lobby {
         this.color = 0;
         this.waitForColor = false;
         this.direction = 0;
+
+        this.chatHistory = [];
     }
 
     initLobby(host) {
@@ -40,7 +42,7 @@ class Lobby {
 
     newSocket(socket) {
         //Send initial packet with info about game and push him to spectators
-        socket.emit('init', {playerID:socket.playerID, currentMove:2});
+        socket.emit('init', {playerID:socket.playerID, currentMove:2, chatHistory:this.chatHistory});
         this.spectators.push(socket);
         this.sendFullInfo(socket);
         socket.canPick = true;
@@ -370,6 +372,8 @@ io.on('connection', function(socket) {
     socket.on('chatSend', function(data) {
         if(data.text.length <= 1) return;
         data.text = '[' + socket.playerID + '] ' + data.text;
+        chatHistory.push(data.text);
+        while(chatHistory.length > 30) {chatHistory.shift();}
         socket.broadcast.emit('chatReceive', data);
     })
 
