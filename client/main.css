@@ -1,5 +1,6 @@
 body {
-    background-color: #ffe7b9;
+    --bg-color: #e4b829;
+    background-color: var(--bg-color);
     margin: 0;
     padding: 0;
 }
@@ -11,18 +12,17 @@ body {
 }
 
 #options {
-    background-color: #ecab33;
+    background-color: var(--bg-color);
     padding: 20px;
-    min-width: 200px;
+    width: 100%;
     text-align: center;
     display: flex;
     flex-direction: column;
 }
 
 #canvasHolder {
-    background-color: #ffaf1b;
-
-    padding: 20px;
+    background-color: var(--bg-color);
+    padding: 10px;
 }
 
 #gameDiv button {
@@ -46,16 +46,20 @@ body {
     margin-top: auto;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1000px) {
     #gameDiv {
         flex-direction: column;
     }
 
     #options, #canvasHolder, #gameDiv {
         border: none;
-        padding: none;
-        margin: none;
-        max-width: 500px;
+        padding: 0 10px;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    #bottom {
+        order: -1;
     }
 }
 
@@ -109,7 +113,7 @@ body {
     background: #ffed84;
     width: 100%;
     height: 250px;
-    overflow-x: wrap;
+    overflow-x: hidden;
     overflow-y: scroll;
     text-align: left;
     padding: 3px;
