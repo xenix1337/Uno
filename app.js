@@ -372,8 +372,8 @@ io.on('connection', function(socket) {
     socket.on('chatSend', function(data) {
         if(data.text.length <= 1) return;
         data.text = '[' + socket.playerID + '] ' + data.text;
-        this.chatHistory.push(data.text);
-        while(this.chatHistory.length > 30) {this.chatHistory.shift();}
+        lobby.chatHistory.push(data.text);
+        while(lobby.chatHistory.length > 30) {lobby.chatHistory.shift();}
         socket.broadcast.emit('chatReceive', data);
     })
 
