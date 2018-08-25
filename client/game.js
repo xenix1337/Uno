@@ -14,14 +14,6 @@ const FPS = 30;
 const colors = ['gray','red','lime','blue','yellow','black'];
 const cardWidth =  90;
 const cardHeight = 150;
-var cardsSheet = new Image();
-cardsSheet.src = "client/img/cards2.png";
-var specialSheet = new Image();
-specialSheet.src = "client/img/specials.png";
-var colorCatsSheet = new Image();
-colorCatsSheet.src = "client/img/colorCats.png";
-var messageSheet = new Image();
-messageSheet.src = "client/img/messages.png";
 
 var cards = [];
 
@@ -37,6 +29,17 @@ var playerSeat = 0;
 var isPlaying = false;
 var running = false;
 var drawColorCat = false;
+var touchDevice = ('ontouchstart' in document.documentElement);
+
+//Images
+var cardsSheet = new Image();
+cardsSheet.src = "client/img/cards2.png";
+var specialSheet = new Image();
+specialSheet.src = "client/img/specials.png";
+var colorCatsSheet = new Image();
+colorCatsSheet.src = "client/img/colorCats.png";
+var messageSheet = new Image();
+messageSheet.src = "client/img/messages.png";
 
 //Events
 canvas.addEventListener("click", function() {
@@ -98,7 +101,7 @@ function draw() {
                     if(value.hovered == false) value.onHover();
                     canHover = false;
                     if(!cardPile.verifyCard(value.id)) return;
-                    canvas.style.cursor = "pointer";
+                    if(!touchDevice) canvas.style.cursor = "pointer";
                     
 
                     if(mousePos.oneclick && players[0].canMove) { //On click
