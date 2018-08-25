@@ -32,6 +32,7 @@ socket.on('fullinfo', function(data) {
     if(data.you.seat > -1) isPlaying = true;
     else isPlaying = false;
 
+    running = data.running;
     drawColorCat = false;
 
     cards = [];
@@ -56,7 +57,7 @@ socket.on('fullinfo', function(data) {
     moveIndicator.setPlayer(data.currentMove);
     if(data.pile >= 0) cardPile.putCard(new PlayerCard(data.pile));
 
-    running = data.running;
+    
     if(!running) buttonsManager.hideButton('take');
 })
 
