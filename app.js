@@ -7,7 +7,7 @@ app.get('/', function(req, res) {
 });
 app.use('/client', express.static(__dirname + '/client'));
 
-http.listen(8080, '0.0.0.0');
+http.listen(process.env.PORT || 8080, '0.0.0.0');
 console.log("Server started!");
 
 class Lobby {
