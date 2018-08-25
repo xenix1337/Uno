@@ -1,23 +1,22 @@
 class Card {
-    constructor(id) {
-        this.id = id;
+    constructor() {
+        //Transform info
         this.x = 0;
-
         this.y = 0;
-        this.hovered = false;
-        this.zIndex = 0;
-        this.own = false;
+        this.z = 0;
 
+        //Animation info
         this.startPos = {};
         this.destination = {};
         this.time = 0;
         this.maxTime = 0;
         this.moving = false;
 
+        //Push card to all cards array
         cards.push(this);
     }
 
-    draw() {
+    update() {
         if(this.moving) {
             this.time += 1000 / FPS;
             this.x = this.startPos.x + (this.destination.x - this.startPos.x) * (this.time / this.maxTime);
@@ -27,24 +26,12 @@ class Card {
                 this.y = this.destination.y;
                 this.moving = false;
             }
-            this.zIndex = 1000;
         }
-        
-        let colorID = Math.floor(this.id / 13);
-        c.fillStyle = colors[colorID + 1];
+    }
 
-        c.fillRect(this.x, this.y, cardWidth, cardHeight);
-        c.fillStyle = 'black';
-        c.lineWidth =5 ;
-        c.strokeRect(this.x, this.y, cardWidth, cardHeight);
-
-        if(this.id == -1) return;
-        var symbol = (this.id % 13 < 10) ? this.id % 13 : symbols[(this.id % 13) - 10];
-        c.font = '50px Arial';
-        c.textAlign = 'center';
-        if(colorID == 4) c.fillStyle = 'white';
-        c.fillText(symbol, this.x + cardWidth / 2, this.y + cardHeight / 2);
-    };
+    draw() {
+        c.drawImage(cardsSheet, 5*cardWidth, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
+    }
 
     move(destination, time) {
         this.time = 0;
@@ -55,23 +42,84 @@ class Card {
     }
 }
 
+class PlayerCard extends Card {
+    constructor(id) {
+        super();
+        this.id = id;
+        this.hovered = false;
+    }
+
+    isMouseOnIt() {
+        return aabb(mousePos.x, mousePos.y, this.x, this.y, cardWidth, cardHeight + 100);
+    }
+
+    update() {
+        //let hoveredNow = this.isMouseOnIt();
+        super.update();
+    }
+
+    draw() {
+        let colorID = Math.floor(this.id / 13);
+
+        c.drawImage(cardsSheet, colorID * cardWidth, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
+
+        if((this.id % 13 <= 9 && this.id != 52) || this.id % 13 == 12 || this.id == 53) { //Cards with text symbols
+            var symbol = this.id % 13;
+            if(this.id % 13 == 12) symbol = '+2';
+            if(this.id == 53) symbol = '+4';
+
+            c.font = '48px Comic Sans MS';
+            c.textAlign = 'center';
+            c.textBaseline = 'middle'; 
+            c.fillStyle = 'black';
+            c.fillText(symbol, this.x + cardWidth / 2, this.y + cardHeight / 2);
+        } else { //Cards with symbols
+            var dx = 0;
+            if(this.id == 52) {
+                dx = cardWidth * 2;
+            } else {
+                dx = ((this.id%13) - 10) * cardWidth;
+            }
+
+            c.drawImage(specialSheet, dx, 0, cardWidth, cardHeight, this.x, this.y, cardWidth, cardHeight);
+        }
+        
+    }
+
+    onHover() {
+        this.move({x:this.x, y:this.y-55},200);
+
+        this.hovered = true;
+    }
+
+    onDehover() {
+        this.move({x:this.x, y:this.startPos.y},200);
+
+        this.hovered = false;
+    }
+}
+
 class Deck {
     constructor() {
         this.cards = [];
-        this.own = false;
         this.x = 0;
         this.y = 0;
-        this.margin = 30;
+        this.own = false;
+        this.margin = 0.06 * width;
         this.orientation = 'h';
     }
 
-    addCard(id, own=false) {
-        var newCard = new Card((own) ? id : -1);
-        newCard.own = own;
+    addCard(id) {
+        var newCard;
+        if(this.own) newCard = new PlayerCard(id);
+        else newCard = new Card();
+
         this.cards.push(newCard);
+        this.sortDeck();
     }
 
     sortDeck() {
+        if(!this.own) return;
         this.cards.sort(function(a,b) {
             return a.id - b.id;
         })
@@ -93,9 +141,9 @@ class Deck {
         //Set them at their position and draw
         this.cards.forEach(function(value, index) {
             value.x = ((_this.orientation == 'h') ? currentX : _this.x);
-            value.y = ((_this.orientation == 'h') ? _this.y : currentX);
+            if(!value.hovered) value.y = ((_this.orientation == 'h') ? _this.y : currentX);
             
-            value.zIndex = index + ((_this.own) ? 100 : 0);
+            value.z = index + ((_this.own) ? 100 : 0);
 
             currentX += (cardsWidth - ((_this.orientation == 'h') ? cardWidth : cardHeight)) / (cardCount - 1);
         });
@@ -105,48 +153,70 @@ class Deck {
 class CardPile {
     constructor() {
         this.cards = [];
-        this.x = 220;
-        this.y = 200;
+        this.x = width / 2 - cardWidth / 2;
+        this.y = height / 2 - cardHeight / 2;
+        this.color; //for card 52 and 53
     }
 
     topCard() {
+        if(this.cards.length <= 0) return -1;
         return this.cards[this.cards.length - 1];
     }
 
     putCard(card) {
         this.cards.push(card);
-        while(this.cards.length > 3) this.cards.shift();
+        while(this.cards.length > 3) {
+            var oldCard = this.cards.shift();
+            cards.splice(cards.indexOf(oldCard), 1);
+        }
     }
 
-    draw() {
+    update() {
         let _this = this;
-        this.cards.forEach(function(value) {
+        this.cards.forEach(function(value,index) {
+            value.z = index;
             if(!value.moving) {
                 value.x = _this.x;
                 value.y = _this.y;
             }
-            value.draw();
         })
+    }
+
+    verifyCard(id) {
+        var topCardID = this.topCard().id;
+        if(id >= 52) return true; //For black cards always return true
+        if(topCardID < 52) { //For all cards on pile, expect black
+            if(topCardID % 13 == id % 13) return true; //Return true for same number
+            if(Math.floor(topCardID / 13) == Math.floor(id / 13)) return true; //Return true for same color
+        } else {
+            if(this.color == Math.floor(id/13)) return true; //For black color-changed cards, return true for same color only
+        }
+        return false; //Otherwise, return false
     }
 }
 
 class Player {
-    constructor(seat) {
-        this.own = (seat == 0);
+    constructor(seat, own = false) {
+        this.own = own;
         this.canMove = false;
         this.seat = seat;
         this.deck = new Deck();
+        this.id = 0;
+        this.localSeat = 0;
 
-        this.deck.x = deckPositions[seat].x;
-        this.deck.y = deckPositions[seat].y;
-        this.deck.own = this.own;
-        if(seat%2==1) this.deck.orientation = 'v';
-        if(seat!=0) this.deck.margin = 140;
     }
 
     update() {
+        this.localSeat = (this.seat - playerSeat) % 4;
+        if(this.localSeat < 0) this.localSeat += 4;
+        this.deck.x = deckPositions[this.localSeat].x;
+        this.deck.y = deckPositions[this.localSeat].y;
+        this.deck.own = this.own;
+        if(this.localSeat%2==1) this.deck.orientation = 'v';
+        if(this.localSeat!=0) this.deck.margin = 0.28 * width;
+
         this.deck.update();
-        if(this.seat == 0) this.deck.sortDeck();
+        if(this.own) this.deck.sortDeck();
     }
 }
 
@@ -157,7 +227,16 @@ class MoveIndicator {
     }
 
     setPlayer(seat) {
-        players[0].canMove = (seat == 0);
+        this.seat = seat;
+        players[0].canMove = (seat == playerSeat);
+        if(seat == playerSeat) {
+            buttonsManager.showButton('take');
+            buttonsManager.checkUno();
+        } else {
+            buttonsManager.hideButton('take');
+            buttonsManager.hideButton('pass');
+            buttonsManager.hideButton('uno');
+        }
     }
 
     nextPlayer() {
@@ -170,10 +249,10 @@ class MoveIndicator {
     }
 
     draw() {
-        let distance = 90;
+        let distance = 0.25 * width;
         c.save();
         c.translate(width / 2, height / 2);
-        c.rotate(0.5 * 3.1415 * this.seat);
+        c.rotate(0.5 * 3.1415 * (this.seat - playerSeat));
         c.beginPath();
         c.fillStyle='white';
         c.moveTo(0,distance);
@@ -181,5 +260,31 @@ class MoveIndicator {
         c.lineTo(10, distance - 10);
         c.fill();
         c.restore();
+    }
+}
+
+class ButtonsManager {
+    constructor() {
+        
+    }
+
+    showButton(name) {
+        var button = document.getElementById(name);
+        button.style.visibility = 'visible';
+    }
+
+    hideButton(name) {
+        var button = document.getElementById(name);
+        button.style.visibility = 'hidden';
+    }
+
+    checkUno() {
+        if(players[0].deck.cards.length == 2) {
+            var canThrow = false;
+            players[0].deck.cards.forEach(function(value) {
+                if(cardPile.verifyCard(value.id)) canThrow = true;
+            })
+            if(canThrow) this.showButton('uno');
+        }
     }
 }

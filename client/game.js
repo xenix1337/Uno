@@ -1,204 +1,129 @@
+//Canvas Info
 var canvas = document.getElementById('game');
+canvas.onselectstart = function () { return false; }
 var c = canvas.getContext('2d');
 
-const width = 500;
-const height = 500;
-const FPS = 30;
-
-const color = ['gray','red','lime','blue','yellow','black'];
-const symbols = ['X', '><', '+2'];
-
+var width = 750;
+var height = 750;
 canvas.width = width;
 canvas.height = height;
-var mousePos = {x:0,y:0};
 
+const FPS = 30;
+
+//Cards info
+const colors = ['gray','red','lime','blue','yellow','black'];
+const cardWidth =  90;
+const cardHeight = 150;
+var cardsSheet = new Image();
+cardsSheet.src = "client/img/cards2.png";
+var specialSheet = new Image();
+specialSheet.src = "client/img/specials.png";
+var colorCatsSheet = new Image();
+colorCatsSheet.src = "client/img/colorCats.png";
+
+var cards = [];
+
+//Other
+var mousePos = {x:0,y:0,oneclick:false};
+const deckPositions = [
+    {x:0, y:height - cardHeight - 20},
+    {x:20, y:0},
+    {x:0,y:20},
+    {x:width - cardWidth - 20,y:0}
+];
+var playerSeat = 0;
+var isPlaying = false;
+var running = false;
+var drawColorCat = false;
+
+//Events
 canvas.addEventListener("click", function() {
-    enemies[0].deck.cards.push(new Card(-1));
-    enemies[1].deck.cards.push(new Card(-1));
-    enemies[2].deck.cards.push(new Card(-1));
-
-    Player.deck.moveCard(Player.deck.cards[0]);
+    mousePos.oneclick = true;
 });
 
-var objectPool = [];
+canvas.addEventListener('mousemove', function(evt) {
+    mousePos = getMousePos(canvas,evt);
+});
 
-class Card {
-    constructor(id) {
-        this.id = id;
-        this.x = 0;
-        this.y = 0;
-        this.width = 60;
-        this.height = 100;
-        this.hovered = false;
-        this.zIndex = 0;
-        this.own = false;
+//Game variables
+var players = [];
 
-        this.startPos = {};
-        this.destination = {};
-        this.time = 0;
-        this.maxTime = 0;
-        this.moving = false;
+players.push(new Player(0, true));
 
-        objectPool.push(this);
-    }
+var buttonsManager = new ButtonsManager();
+var moveIndicator = new MoveIndicator(0);
+var cardPile = new CardPile();
 
-    draw() {
-        if(this.moving) {
-            this.time += 1000 / FPS;
-            this.x = this.startPos.x + (this.destination.x - this.startPos.x) * (this.time / this.maxTime);
-            this.y = this.startPos.y + (this.destination.y - this.startPos.y) * (this.time / this.maxTime);
-            if(this.time >= this.maxTime) {
-                this.x = this.destination.x;
-                this.y = this.destination.y;
-                this.moving = false;
-            }
-        }
 
-        let hoverY = this.hovered ? -55 : 0;
-
-        let colorID = Math.floor(this.id / 13);
-        c.fillStyle = color[colorID + 1];
-
-        c.fillRect(this.x, this.y + hoverY, this.width, this.height);
-        c.fillStyle = 'black';
-        c.strokeRect(this.x, this.y + hoverY, this.width, this.height);
-
-        if(this.id == -1) return;
-        var symbol = (this.id % 13 < 10) ? this.id % 13 : symbols[(this.id % 13) - 10];
-        c.font = '50px Arial';
-        c.textAlign = 'center';
-        if(colorID == 4) c.fillStyle = 'white';
-        c.fillText(symbol, this.x + this.width / 2, hoverY + this.y + this.height / 2);
-    };
-
-    move(destination, time) {
-        this.time = 0;
-        this.maxTime = time;
-        this.startPos = {x:this.x,y:this.y};
-        this.destination = destination;
-        this.moving = true;
-    }
-}
-
-class Deck {
-    constructor() {
-        this.cards = [];
-        this.own = false;
-        this.x = 0;
-        this.y = 0;
-        this.margin = 30;
-        this.orientation = 'h';
-    }
-
-    addCard(id, own=false) {
-        var newCard = new Card(id);
-        newCard.own = own;
-        this.cards.push(newCard);
-
-        //Sort all cards
-        this.cards.sort(function(a,b) {
-            return a.id > b.id;
-        })
-    }
-
-    moveCard(card) {
-        var index = this.cards.indexOf(card);
-        this.cards.splice(index,1);
-        card.move({x:220,y:200}, 500);
-        topCard = card;
-    }
-
-    update() {
-        let _this = this;
-
-        //Align cards in the middle
-        let cardCount = this.cards.length;
-        let cardsWidth = -10;
-        this.cards.forEach(function(value) {
-            if(_this.orientation == 'h') cardsWidth += value.width + 10;
-            else cardsWidth += value.height + 10;
-        });
-        if(cardsWidth > width - 2 * this.margin) cardsWidth = width - 2 * this.margin;
-        let currentX = width / 2 - cardsWidth / 2 + ((this.orientation == 'h') ? this.x : this.y);
-        //Set them at their position and draw
-        this.cards.forEach(function(value, index) {
-            value.x = ((_this.orientation == 'h') ? currentX : _this.x);
-            value.y = ((_this.orientation == 'h') ? _this.y : currentX);
-            value.zIndex = index + ((_this.own) ? 100 : 0);
-
-            currentX += (cardsWidth - ((_this.orientation == 'h') ? value.width : value.height)) / (cardCount - 1);
-        });
-    }
-}
-
-var Player = {
-    deck: new Deck(),
-    update: function() {
-        this.deck.update();
-    }
-};
-
-class Enemy {
-    constructor() {
-        this.name = '';
-        this.deck = new Deck();
-    }
-
-    update() {
-        this.deck.update();
-    }
-}
 
 //START GAME
-for(var i = 0; i < 25; i++) {
-    Player.deck.addCard(Math.floor(Math.random() * 50), true);
-}
-Player.deck.own = true;
-Player.deck.y = height - 120;
-
-var enemies = [];
-enemies.push(new Enemy());
-enemies[0].deck.y = 20;
-enemies[0].deck.margin = 140;
-
-enemies.push(new Enemy());
-enemies[1].deck.x = 20;
-enemies[1].deck.orientation = 'v';
-enemies[1].deck.margin = 140;
-
-enemies.push(new Enemy());
-enemies[2].deck.x = 420;
-enemies[2].deck.orientation = 'v';
-enemies[2].deck.margin = 140;
-
-var topCard = new Card(5);
-
 draw();
-setInterval(draw, 1000 / FPS); //TODO: I can change it to every event in game, because it hasn't got any physics or animations
+setInterval(draw, 1000 / FPS);
 
 //DRAW FUNCTION
 function draw() {
+    var width = canvas.width;
+    var height = canvas.height;
+
+    //Draw background
     c.fillStyle = 'darkgreen';
     c.fillRect(0,0,width,height);
 
-    Player.update();
-    enemies.forEach(function(value) {
-        value.update();
+    if(!running) return;
+
+    //Update cards holders and draw move indicator
+    players.forEach(function(value) {
+        if(value.own && isPlaying || !value.own) value.update();
+    })
+    moveIndicator.draw();
+    cardPile.update();
+
+    //Sort cards by zIndex and draw them
+    cards.sort(function(a,b) {
+        return a.z - b.z;
     })
 
-    let canHover = true;
-    objectPool.slice().reverse().forEach(function(value) {
-        if(aabb(mousePos.x, mousePos.y, value.x, value.y, value.width, value.height) && canHover && value.own) {
-            value.hovered = true;
-            canHover = false;
-        } else value.hovered = false;
-    })
-    objectPool.sort(function(a,b) {
-        return a.zIndex > b.zIndex;
-    })
-    objectPool.forEach(function(value) {
+    if(isPlaying && players[0].deck.cards.length > 0) {
+        let canHover = true;
+        players[0].deck.cards.slice().reverse().forEach(function(value, index, array) {
+            let mouseOnIt = value.isMouseOnIt();
+            if(!mouseOnIt) {
+                if(value.hovered == true) value.onDehover();
+            }
+            if(mouseOnIt) {
+                if(canHover) {
+                    if(value.hovered == false) value.onHover();
+                    canHover = false;
+                    if(!cardPile.verifyCard(value.id)) return;
+                    canvas.style.cursor = "pointer";
+                    
+
+                    if(mousePos.oneclick && players[0].canMove) { //On click
+                        sendCard(value);
+                        if(value.id >= 52) document.getElementById('colorChoose').style.visibility = 'visible';
+                        value.move({x:cardPile.x,y:cardPile.y},500);
+                        players[0].deck.cards.splice(array.length - index - 1, 1);
+                        cardPile.putCard(value);
+
+                        players[0].canMove = false;
+                    }
+                } else {
+                    if(value.hovered == true) value.onDehover();
+                }
+            }
+        })
+        if(canHover || !players[0].canMove) canvas.style.cursor = "auto";
+    }
+    cards.forEach(function(value) {
+        value.update();
         value.draw();
     })
+
+    if(drawColorCat) {
+        c.drawImage(colorCatsSheet, cardWidth * cardPile.color, 0, cardWidth, cardHeight, width / 2 - cardWidth / 2, height / 2 - cardHeight / 2 - 72, cardWidth, cardHeight);
+    }
+
+    mousePos.oneclick = false;
 }
 
 //OTHER FUNCTIONS
@@ -214,8 +139,3 @@ function getMousePos(canvas, evt) {
         y: evt.clientY - rect.top
     };
 }
-
-//EVENTS
-canvas.addEventListener('mousemove', function(evt) {
-    mousePos = getMousePos(canvas,evt);
-});
