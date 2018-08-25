@@ -158,3 +158,9 @@ function sendChat() {
 
     input.value = '';
 }
+
+socket.on('win', function(data) {
+    //data.playerID;
+    buttonsManager.hideButton('take');
+    buttonsManager.hideButton('pass');
+})

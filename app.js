@@ -149,14 +149,16 @@ class Lobby {
     sendCard(socket, data) {
         if(!this.verifyCard(data.id)) return;
         if(socket.seat != this.currentMove) return;
+        if(!this.running) return;
+
         var _this = this;
 
         var index = socket.cards.indexOf(data.id);
 
         if(index >= 0) {
             socket.cards.splice(index, 1);
-            if (this.checkWin(socket)) return;
             socket.broadcast.emit('cardOnPile', {id:data.id, playerID:socket.playerID});
+            if (this.checkWin(socket)) return;
 
             //Checking for saing UNO
             if(!socket.saidUno && socket.cards.length == 1) {
@@ -203,6 +205,7 @@ class Lobby {
     selectColor(socket, data) {
         if(socket.seat != this.currentMove) return;
         if(!this.waitForColor) return;
+        if(!this.running) return;
         var _this = this;
 
         if(data.color < 0 || data.color > 3) data.color = Math.floor(Math.random() * 3.99999);
@@ -226,6 +229,8 @@ class Lobby {
         if(this.waitForColor) return;
         if(socket.seat != this.currentMove) return;
         if(!socket.canPick) return;
+        if(!this.running) return;
+
         var card = this.giveCard(socket);
 
         if(!this.verifyCard(card)) this.nextPlayer();
@@ -252,10 +257,10 @@ class Lobby {
 
     checkWin(socket) {
         if(socket.cards.length == 0) {
-            socket.broadcast.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
-            socket.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
+            io.emit('chatReceive', {text:(socket.playerID + ' won the round!')});
             this.roundEnd();
-            this.newRound();
+            setTimeout(this.newRound.bind(this), 3000);
+            io.emit('win', {playerID:socket.playerID});
             return true;
         }
     }
@@ -354,7 +359,7 @@ io.on('connection', function(socket) {
     })
 
     socket.on('pass', function() {
-        if(lobby.currentMove == socket.seat && !socket.canPick) lobby.nextPlayer();
+        if(lobby.currentMove == socket.seat && !socket.canPick && lobby.running) lobby.nextPlayer();
     })
 
     socket.on('uno', function() {

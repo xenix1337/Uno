@@ -270,12 +270,12 @@ class ButtonsManager {
 
     showButton(name) {
         var button = document.getElementById(name);
-        button.style.display = 'block';
+        button.style.visibility = 'visible';
     }
 
     hideButton(name) {
         var button = document.getElementById(name);
-        button.style.display = 'none';
+        button.style.visibility = 'hidden';
     }
 
     checkUno() {
