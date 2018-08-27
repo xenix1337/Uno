@@ -363,7 +363,7 @@ io.on('connection', function(socket) {
     })
 
     socket.on('pass', function() {
-        if(lobby.currentMove == socket.seat && !socket.canPick && lobby.running) lobby.nextPlayer();
+        if(lobby.currentMove == socket.seat && !socket.canPick && lobby.running && !lobby.waitForColor) lobby.nextPlayer();
     })
 
     socket.on('uno', function() {
