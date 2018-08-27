@@ -270,6 +270,21 @@ class SpecialMessage {
         this.seatVectors = [{x:0,y:1},{x:-1,y:0},{x:0,y:-1},{x:1,y:0}];
 
         this.visible = false;
+        this.hideButtonTimeout = null;
+    }
+
+    show(seat, type, time = 0) {
+        if(this.hideButtonTimeout != null) clearTimeout(this.hideButtonTimeout);
+
+        this.seat = seat;
+        this.type = type;
+        this.visible = true;
+
+        if(time != 0) this.hideIn(time);
+    }
+
+    hideIn(time) {
+        this.hideButtonTimeout = setTimeout(function() {this.visible = false; this.hideButtonTimeout = null}.bind(this), time);
     }
 
     draw() {

@@ -106,12 +106,12 @@ function sendCard(card) {
 
 function takeCard() {
     buttonsManager.hideButton('take');
-    buttonsManager.showButton('pass');
     socket.emit('takeCard');
 }
 
 socket.on('takeCard', function(data) {
     players[0].deck.addCard(data.id);
+    if(cardPile.verifyCard(data.id)) buttonsManager.showButton('pass');
     buttonsManager.checkUno();
 })
 
@@ -170,19 +170,12 @@ function sendChat() {
 }
 
 socket.on('win', function(data) {
-    specialMessage.type = 1;
-    specialMessage.seat = data.seat;
-    specialMessage.visible = true;
+    specialMessage.show(data.seat, 1, 3000);
 
     buttonsManager.hideButton('take');
     buttonsManager.hideButton('pass');
-    setTimeout(function() {specialMessage.visible=false}, 3000);
 })
 
 socket.on('uno', function(data) {
-    specialMessage.type = 0;
-    specialMessage.seat = data.seat;
-    specialMessage.visible = true;
-
-    setTimeout(function() {specialMessage.visible=false}, 3000);
+    specialMessage.show(data.seat, 0, 3000);
 })
